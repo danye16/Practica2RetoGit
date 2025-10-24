@@ -1,0 +1,34 @@
+# Nombre descriptivo del workflow
+name: Validador de Nombres de Rama en Push
+
+# Configuración del disparador
+on:
+  push:
+    # Se ejecuta para todas las ramas excepto main y master
+    branches:
+      - '!main'
+      - '!master'
+      - '**'  # Esto significa "todas las demás ramas"
+
+# Definición de los trabajos que se ejecutarán
+jobs:
+  # Nombre del trabajo
+  validate-branch-name:
+    # Sistema operativo en el que se ejecutará
+    runs-on: ubuntu-latest
+    
+    # Pasos que se ejecutarán en este trabajo
+    steps:
+      # Paso para verificar el prefijo de la rama
+      - name: Verificar Prefijo de Rama
+        run: |
+          # Verifica si el nombre de la rama cumple con la convención
+          if echo "${{ github.ref_name }}" | grep -Eq '^(feature|bugfix|hotfix)/'; then
+            # Mensaje de éxito si cumple la convención
+            echo "✅ El nombre de la rama sigue la convención: ${{ github.ref_name }}"
+          else
+            # Mensaje de error si no cumple la convención
+            echo "❌ Error: El nombre de la rama no sigue la convención. Debe comenzar con 'feature/', 'bugfix/', o 'hotfix/'"
+            # Termina con error (código 1) para que el workflow falle
+            exit 1
+          fi
